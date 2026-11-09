@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Ryan Pascual</title>
+<meta name="description" content="Ryan Pascual builds backend and data infrastructure, mostly in Go. Rice CS, SAS Health & Life Sciences R&D, RiceApps technical lead.">
+<style>
+
+  /* Go fonts by Bigelow & Holmes for the Go project. License: fonts/LICENSE-Go */
+  @font-face { font-family: "Go"; src: url("fonts/Go-Regular.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Go"; src: url("fonts/Go-Medium.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Go"; src: url("fonts/Go-Bold.woff2") format("woff2"); font-weight: 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Go Mono"; src: url("fonts/Go-Mono.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+  :root {
+    --font-body: "Go", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Go", ui-sans-serif, system-ui, sans-serif;
+    --font-code: "Go Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --body-size: 17px;
+    --body-fvs: normal;
+    --code-fvs: normal;
+    --lede-weight: 400;
+    --lede-tracking: -0.01em;
+    --name-size: clamp(2.1rem, 5.4vw, 4.1rem);
+    --name-size-sm: 2.25rem;
+    --name-weight: 500;
+    --name-tracking: -0.035em;
+    --name-leading: 1.04;
+    --name-stretch: normal;
+    --name-stretch-hover: normal;
+    --name-fvs: normal;
+    --name-fvs-hover: normal;
+    --name-shift-hover: 14px;
+    --fig-size: 2.6rem;
+    --fig-stretch: normal;
+    --w-heading: 700;
+    --w-strong: 500;
+    --w-link: 500;
+    --w-tag: 400;
+    --card-radius: 2px;
+    --img-radius: 0px;
+    --tag-radius: 2px;
+    --fog: #FFFFFF;
+    --paper: #FFFFFF;
+    --spruce: #000000;
+    --moss: #5E5E5E;
+    --lichen: #DCDCDC;
+    --line: #000000;
+    --bloom: #0033CC;
+    --bar-hi: #0033CC;
+    --bar-lo: #8F8F8F;
+    --code-bg: #EFEFEF;
+    --shadow: none;
+    --float-line: #000000;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fog: #000000;
+      --paper: #000000;
+      --spruce: #FFFFFF;
+      --moss: #A6A6A6;
+      --lichen: #2B2B2B;
+      --line: #8C8C8C;
+      --bloom: #7DA2FF;
+      --bar-hi: #6F96FF;
+      --bar-lo: #6B6B6B;
+      --code-bg: #1C1C1C;
+      --shadow: none;
+      --float-line: #FFFFFF;
+    }
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--fog);
+    color: var(--spruce);
+    font-family: var(--font-body);
+    font-variation-settings: var(--body-fvs);
+    font-size: var(--body-size);
+    line-height: 1.55;
+  }
+  a { color: inherit; text-decoration-color: var(--bloom); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+  a:hover { color: var(--bloom); }
+  :focus-visible { outline: 2px solid var(--bloom); outline-offset: 3px; border-radius: 4px; }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 40px; }
+
+  /* Header */
+  .top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px 28px; padding: 30px 0 0; }
+  .me { font-weight: var(--w-heading); font-size: 1.05rem; text-decoration: none; }
+  .top nav { display: flex; flex-wrap: wrap; gap: 4px 24px; }
+  .top nav a { text-decoration: none; color: var(--moss); }
+  .top nav a:hover { color: var(--bloom); }
+
+  /* Intro */
+  .intro { padding: 88px 0 64px; }
+  .lede {
+    margin: 0; max-width: 40ch;
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem); line-height: 1.3; font-weight: var(--lede-weight); letter-spacing: var(--lede-tracking);
+  }
+  .hint { margin: 40px 0 0; color: var(--moss); font-size: 0.95rem; }
+  .hint .touch { display: none; }
+  @media (hover: none), (pointer: coarse) {
+    .hint .mouse { display: none; }
+    .hint .touch { display: inline; }
+  }
+
+  /* Project list */
+  .list { border-top: 1.5px solid var(--spruce); }
+  .row { border-bottom: 1px solid var(--lichen); }
+  .row > summary {
+    list-style: none; cursor: pointer;
+    display: grid; grid-template-columns: minmax(0, 1fr) 16rem 2.25rem; align-items: center; gap: 24px;
+    padding: 18px 0 16px;
+  }
+  .row > summary::-webkit-details-marker { display: none; }
+  .row > summary:focus-visible { outline-offset: -2px; }
+
+  .name {
+    display: block; min-width: 0;
+    font-family: var(--font-display);
+    font-size: var(--name-size); line-height: var(--name-leading); font-weight: var(--name-weight);
+    font-stretch: var(--name-stretch); letter-spacing: var(--name-tracking);
+    font-variation-settings: var(--name-fvs);
+    transition: font-stretch 0.35s cubic-bezier(.2,.8,.2,1), font-variation-settings 0.35s cubic-bezier(.2,.8,.2,1),
+      transform 0.3s cubic-bezier(.2,.8,.2,1), color 0.2s ease, opacity 0.25s ease;
+  }
+  .what { font-size: 0.98rem; line-height: 1.35; }
+  .what span { display: block; }
+  .what .where { color: var(--moss); }
+  .what .langs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .what .langs span {
+    display: inline-block; font-family: var(--font-code); font-variation-settings: var(--code-fvs);
+    font-size: 0.8rem; font-weight: var(--w-tag); line-height: 1;
+    padding: 4px 9px 5px; border: 1px solid var(--line); border-radius: var(--tag-radius); color: var(--spruce);
+  }
+
+  .toggle {
+    width: 2.25rem; height: 2.25rem; border-radius: 50%;
+    border: 1.5px solid var(--lichen); display: grid; place-items: center; color: var(--moss);
+    transition: transform 0.25s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+  .toggle svg { width: 12px; height: 12px; }
+  .row[open] .toggle { transform: rotate(45deg); border-color: var(--spruce); color: var(--spruce); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .list:has(.row > summary:hover) .row > summary:not(:hover) .name { opacity: 0.32; }
+    .row > summary:hover .name {
+      color: var(--bloom); font-stretch: var(--name-stretch-hover);
+      font-variation-settings: var(--name-fvs-hover); transform: translateX(var(--name-shift-hover));
+    }
+    .row > summary:hover .toggle { border-color: var(--bloom); color: var(--bloom); }
+  }
+  .row[open] > summary .name { font-stretch: var(--name-stretch-hover); font-variation-settings: var(--name-fvs-hover); }
+
+  /* Detail */
+  .detail {
+    display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 28px 56px;
+    padding: 10px 0 48px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .row[open] .detail { animation: open 0.35s cubic-bezier(.2,.8,.2,1) both; }
+    @keyframes open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .name { transition: color 0.2s ease, opacity 0.25s ease; }
+    .row > summary:hover .name { transform: none; }
+  }
+  .body { max-width: 62ch; }
+  .body > p { margin: 0 0 18px; }
+  .body h3 { font-size: 1rem; font-weight: var(--w-heading); margin: 26px 0 8px; }
+  .body ul { margin: 0; padding-left: 1.15em; }
+  .body li + li { margin-top: 7px; }
+  .body li::marker { color: var(--moss); }
+  .body > .stack { margin: 24px 0 0; color: var(--moss); font-size: 0.95rem; }
+  .stack b { color: var(--spruce); font-weight: var(--w-strong); }
+  .links { display: flex; flex-wrap: wrap; gap: 6px 24px; margin-top: 14px; font-weight: var(--w-link); }
+  code {
+    font-family: var(--font-code); font-variation-settings: var(--code-fvs); font-size: 0.86em;
+    background: var(--code-bg); padding: 0.05em 0.35em; border-radius: var(--tag-radius); overflow-wrap: anywhere;
+  }
+
+  /* Art: shared by the open detail and the floating preview */
+  .art {
+    background: var(--paper); border-radius: var(--card-radius); padding: 16px; align-self: start;
+    border: 1px solid var(--line);
+  }
+  .art img { display: block; width: 100%; height: auto; aspect-ratio: 983 / 1098; border-radius: var(--img-radius); background: var(--lichen); }
+  .art .cap { margin: 12px 2px 0; font-size: 0.88rem; line-height: 1.4; color: var(--moss); }
+
+  .chart-title { margin: 2px 2px 14px; font-size: 0.9rem; font-weight: var(--w-strong); line-height: 1.35; }
+  .bars { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .bars li { display: grid; grid-template-columns: 7.6rem minmax(0, 1fr); align-items: center; gap: 10px; font-size: 0.86rem; }
+  .bars .lab { color: var(--moss); line-height: 1.2; }
+  .bars .hi .lab { color: var(--spruce); font-weight: var(--w-strong); }
+  .bars .track { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .bars .bar { height: 14px; width: calc(var(--p) * 0.74%); border-radius: 0 4px 4px 0; background: var(--bar-lo); flex: none; }
+  .bars .hi .bar { background: var(--bar-hi); }
+  .bars .val { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--moss); }
+  .bars .hi .val { color: var(--spruce); font-weight: var(--w-strong); }
+
+  .figs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+  .figs.one { grid-template-columns: 1fr; }
+  .fig b {
+    display: block; font-family: var(--font-display); font-size: var(--fig-size); line-height: 1;
+    font-weight: var(--name-weight); font-stretch: var(--fig-stretch); letter-spacing: var(--name-tracking);
+    font-variation-settings: var(--name-fvs);
+  }
+  .fig span { display: block; margin-top: 8px; font-size: 0.88rem; color: var(--moss); line-height: 1.35; }
+
+  /* Floating preview */
+  .preview {
+    position: fixed; left: 0; top: 0; z-index: 10; width: 340px;
+    pointer-events: none; opacity: 0; visibility: hidden;
+    transition: opacity 0.18s ease, visibility 0s linear 0.18s;
+  }
+  .preview.on { opacity: 1; visibility: visible; transition: opacity 0.18s ease; }
+  .preview .art { box-shadow: var(--shadow); border-color: var(--float-line); }
+
+  /* Background */
+  .more {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px 48px;
+    padding: 72px 0 64px;
+  }
+  .more h2 { font-size: 1rem; font-weight: var(--w-heading); margin: 0 0 12px; }
+  .more p { margin: 0; color: var(--moss); }
+  .more p + p { margin-top: 12px; }
+  .more p b { color: var(--spruce); font-weight: var(--w-strong); display: block; }
+
+  footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 28px 0 48px; border-top: 1px solid var(--lichen); color: var(--moss); font-size: 0.95rem; }
+
+  @media (max-width: 860px) {
+    .detail { grid-template-columns: minmax(0, 1fr); }
+    .detail .art { max-width: 380px; }
+    .more { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    body { font-size: calc(var(--body-size) - 1px); }
+    .wrap { padding: 0 16px; }
+    .top { padding-top: 22px; }
+    .intro { padding: 56px 0 44px; }
+    .hint { margin-top: 28px; }
+    .row > summary { grid-template-columns: minmax(0, 1fr) 2.25rem; gap: 6px 14px; padding: 16px 0 14px; }
+    .name { font-size: var(--name-size-sm); grid-column: 1; }
+    .what { grid-column: 1; grid-row: 2; }
+    .toggle { grid-column: 2; grid-row: 1; }
+    .more { grid-template-columns: minmax(0, 1fr); padding: 56px 0 44px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="me" href="#">Ryan Pascual</a>
+    <nav aria-label="Profiles and contact">
+      <a href="https://github.com/rpasco787">GitHub</a>
+      <a href="https://www.linkedin.com/in/ryanpascual787">LinkedIn</a>
+      <a href="mailto:rpascual789@gmail.com">Email</a>
+      <a href="resume.pdf">Resume</a>
+    </nav>
+  </header>
+
+  <section class="intro">
+    <p class="lede">I'm a computer science student at Rice who builds backend and data infrastructure, mostly in Go. This summer I rebuilt a production data pipeline at SAS, and this year I'm the technical lead at RiceApps. I'm looking for infrastructure work for summer 2027.</p>
+    <p class="hint"><span class="mouse">Hover a project to preview it, and click to read more.</span><span class="touch">Tap a project to read more.</span></p>
+  </section>
+
+  <main class="list" id="list" aria-label="Projects">
+
+    <details class="row">
+      <summary>
+        <span class="name">hopper</span>
+        <span class="what"><span>Distributed job queue</span><span class="where">Personal project, 2026</span><span class="langs"><span>Go</span><span>SQL</span></span></span>
+        <span class="toggle" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 1v10M1 6h10"/></svg></span>
+      </summary>
+      <div class="detail">
+        <div class="art">
+          <img src="hopper-autoscale.gif" onerror="this.onerror=null;this.src='https://github.com/rpasco787/hopper/raw/main/docs/img/session9-autoscale.gif'" alt="Terminal recording: the queue backlog climbs to 20,000 jobs while workers scale from 1 to 20, then both fall back to 1." loading="lazy" width="983" height="1098">
+          <p class="cap">Workers scaling from 1 to 20 and back as the queue fills and drains, recorded during a passing test run.</p>
+        </div>
+        <div class="body">
+          <p>A job queue I wrote in Go. Producers enqueue over gRPC, workers pull jobs through a Go SDK, and PostgreSQL stores every job and lease. It retries failed jobs, sets aside dead ones, runs cron schedules, and scales its workers on Kubernetes with KEDA.</p>
+          <h3>How I know it works</h3>
+          <ul>
+            <li>A chaos suite kills workers and restarts the broker and PostgreSQL in the middle of a run. Across 1M+ jobs, none were lost.</li>
+            <li>One test restarts three workers under 1,200 jobs and fails if any job starts twice. Another pushes 20,000 jobs through a scale-up to 20 workers and back down, and fails on any redelivery.</li>
+            <li>On one broker, throughput went from 2,131 to 6,191 jobs a second after I rewrote the lease query to use each queue's index, sized the connection pool, and woke idle workers on enqueue. An idle queue now picks up a new job in 1.5 ms instead of 85 ms.</li>
+          </ul>
+          <h3>Decisions</h3>
+          <ul>
+            <li>PostgreSQL owns every lease, so brokers keep no state and can be killed at any time.</li>
+            <li>Workers renew a lease at a third of its length. The SDK only retries <code>UNAVAILABLE</code> and <code>DEADLINE_EXCEEDED</code>, because an <code>INTERNAL</code> error can mean the write already committed.</li>
+            <li>Only one broker runs the cron scheduler, chosen with a PostgreSQL advisory lock. Each tick carries an idempotency key, so a stalled former leader can't fire it twice.</li>
+            <li>If queue depth can't be read, KEDA holds the current worker count instead of scaling down.</li>
+          </ul>
+          <p class="stack"><b>Built with</b> Go, gRPC, PostgreSQL, Kubernetes, Helm, KEDA, Prometheus, Grafana</p>
+          <div class="links">
+            <a href="https://github.com/rpasco787/hopper">Code on GitHub</a>
+            <a href="https://github.com/rpasco787/hopper/blob/main/docs/semantics.md">Delivery semantics</a>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="name">GRAIN LLM gateway</span>
+        <span class="what"><span>Shared AI gateway for club projects</span><span class="where">RiceApps, 2026</span><span class="langs"><span>Go</span><span>SQL</span></span></span>
+        <span class="toggle" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 1v10M1 6h10"/></svg></span>
+      </summary>
+      <div class="detail">
+        <div class="art">
+          <div class="figs">
+            <div class="fig"><b>15+</b><span>projects send their AI traffic through it</span></div>
+            <div class="fig"><b>30%</b><span>less spent on AI across the club</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <p>GRAIN is an OpenAI-compatible LLM gateway I architected as technical lead at RiceApps. It sits between our client projects and the model providers, so the club manages access and tracks cost in one place.</p>
+          <ul>
+            <li>It serves 15+ projects and cut club-wide AI spending by 30%.</li>
+            <li>It routes each request to a provider that supports what the request needs. Each model has its own circuit breaker, and traffic fails over automatically when a provider goes down.</li>
+          </ul>
+          <p class="stack"><b>Built with</b> Go, PostgreSQL, Redis</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="name">SAS data pipeline</span>
+        <span class="what"><span>Production healthcare ETL</span><span class="where">SAS, summer 2026</span><span class="langs"><span>Go</span><span>SQL</span></span></span>
+        <span class="toggle" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 1v10M1 6h10"/></svg></span>
+      </summary>
+      <div class="detail">
+        <div class="art">
+          <p class="chart-title">Hours to ingest one large batch</p>
+          <ul class="bars" aria-label="Before: 25 hours. After: 4 hours.">
+            <li><span class="lab">Before</span><span class="track"><span class="bar" style="--p:100"></span><span class="val">25 h</span></span></li>
+            <li class="hi"><span class="lab">After</span><span class="track"><span class="bar" style="--p:16"></span><span class="val">4 h</span></span></li>
+          </ul>
+          <p class="cap">About 6x faster. It now ingests 10+ TB a month in production.</p>
+        </div>
+        <div class="body">
+          <p>On the Health &amp; Life Sciences R&amp;D team at SAS, I re-architected the Go pipeline that loads healthcare data from Azure Blob Storage and a FHIR API into Snowflake. I split it into separate download, transform, and load stages that run concurrently.</p>
+          <ul>
+            <li>Large batches went from about 25 hours to about 4.</li>
+            <li>It ingests 10+ TB a month in production and saves 300+ hours of runtime a month.</li>
+            <li>I also cut latency by 90% in the Go package that transforms FHIR data, which is used across the Health &amp; Life Sciences division, by parallelizing parsing and adding caching.</li>
+          </ul>
+          <p class="stack"><b>Built with</b> Go, Azure Blob Storage, FHIR, Snowflake</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="name">SkyTrack</span>
+        <span class="what"><span>Flight delay prediction</span><span class="where">Personal project, 2026</span><span class="langs"><span>Java</span></span></span>
+        <span class="toggle" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 1v10M1 6h10"/></svg></span>
+      </summary>
+      <div class="detail">
+        <div class="art">
+          <p class="chart-title">Average error predicting a departure's delay, in seconds (lower is better)</p>
+          <ul class="bars" aria-label="SkyTrack 483 seconds; carrier and airport average 759; always predict zero 792; flat 85% carry-over 899.">
+            <li class="hi"><span class="lab">SkyTrack</span><span class="track"><span class="bar" style="--p:53.7"></span><span class="val">483</span></span></li>
+            <li><span class="lab">Carrier and airport average</span><span class="track"><span class="bar" style="--p:84.4"></span><span class="val">759</span></span></li>
+            <li><span class="lab">Always predict zero</span><span class="track"><span class="bar" style="--p:88.1"></span><span class="val">792</span></span></li>
+            <li><span class="lab">Flat 85% carry-over</span><span class="track"><span class="bar" style="--p:100"></span><span class="val">899</span></span></li>
+          </ul>
+          <p class="cap">Backtested on 1,951 real flights from March 9, 2026.</p>
+        </div>
+        <div class="body">
+          <p>SkyTrack replays recorded aircraft positions, detects landings with a state machine for each aircraft, and works out how late each arrival was. When a plane lands, it finds that aircraft's next flight, predicts how late it will leave, and follows the delay through the rest of the plane's day.</p>
+          <ul>
+            <li>I tested it against real Bureau of Transportation Statistics on-time data, fitting on March 1–8, 2026 and scoring on March 9. Across 1,951 flights the average error was 483 seconds, against 792 for always predicting zero.</li>
+            <li>When it predicts a delayed departure, it's right 88.7% of the time. For predicted chains of delays, it's right 97.2% of the time.</li>
+            <li>Most of the improvement in chain prediction (F1 from 0.139 to 0.620) came from fixing two bugs in how I measured it, not from tuning the model.</li>
+          </ul>
+          <h3>Decisions</h3>
+          <ul>
+            <li>Positions go through SQS FIFO grouped by aircraft, so each plane's updates arrive in order while different planes process in parallel.</li>
+            <li>Live state is in DynamoDB with a single-table design. History goes to S3 as Parquet, partitioned by hour.</li>
+            <li>A prediction is the usual delay for that airline, airport, and hour, plus how much the turnaround is squeezed. The turnaround term accounts for most of the accuracy.</li>
+          </ul>
+          <p class="stack"><b>Built with</b> Java, Spring Boot, SQS, DynamoDB, S3, LocalStack. 416 tests.</p>
+          <div class="links">
+            <a href="https://github.com/rpasco787/SkyTrack">Code on GitHub</a>
+            <a href="https://github.com/rpasco787/SkyTrack/blob/main/docs/accuracy-stages-0-5-analysis.md">Accuracy write-up</a>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="name">Viya MCP server</span>
+        <span class="what"><span>AI agents for SAS Viya</span><span class="where">SAS, 2026</span><span class="langs"><span>Python</span></span></span>
+        <span class="toggle" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 1v10M1 6h10"/></svg></span>
+      </summary>
+      <div class="detail">
+        <div class="art">
+          <div class="figs one">
+            <div class="fig"><b>50 steps to 1</b><span>A manual workflow in SAS Model Studio became a single prompt.</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <p>An open-source MCP server in Python that lets AI agents work in SAS Health through SAS Viya's APIs, signed in with OAuth. Agents can ingest data, build ML pipelines, map schemas, and manage connections.</p>
+          <ul>
+            <li>It's used by 40+ employees and 15+ clients.</li>
+            <li>ML jobs that take 2+ hours run asynchronously, so an agent starts one and checks back instead of waiting on it.</li>
+          </ul>
+          <p class="stack"><b>Built with</b> Python, OAuth, SAS Viya APIs</p>
+        </div>
+      </div>
+    </details>
+
+    <details class="row">
+      <summary>
+        <span class="name">Fondren inventory</span>
+        <span class="what"><span>Library inventory system</span><span class="where">RiceApps, 2025–26</span><span class="langs"><span>TypeScript</span><span>SQL</span></span></span>
+        <span class="toggle" aria-hidden="true"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 1v10M1 6h10"/></svg></span>
+      </summary>
+      <div class="detail">
+        <div class="art">
+          <div class="figs one">
+            <div class="fig"><b>2,600</b><span>paper forms a year replaced, saving library staff 87 hours</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <p>My first RiceApps project: an inventory system for Rice's Fondren Library, with a PostgreSQL schema and a React admin dashboard.</p>
+          <ul>
+            <li>It tracks 200+ assets.</li>
+            <li>It replaces 2,600 paper forms a year, which saves library staff 87 hours a year.</li>
+          </ul>
+          <p class="stack"><b>Built with</b> Next.js, TypeScript, PostgreSQL</p>
+        </div>
+      </div>
+    </details>
+
+  </main>
+
+  <section class="more" aria-label="Background">
+    <div>
+      <h2>Roles</h2>
+      <p><b>SAS Institute</b>Software Developer Intern, Health &amp; Life Sciences R&amp;D. Full-time for summer 2026, then part-time through October.</p>
+      <p><b>RiceApps</b>Technical Lead since May 2026. I mentor 10 engineers and run weekly architecture and code reviews. Software Engineer from September 2025 to May 2026.</p>
+    </div>
+    <div>
+      <h2>Education</h2>
+      <p><b>Rice University</b>B.A. in Computer Science, expected May 2028. GPA 4.0.</p>
+    </div>
+    <div>
+      <h2>Tools</h2>
+      <p><b>Languages</b>Go, Java, Python, TypeScript, SQL</p>
+      <p><b>Backend and data</b>gRPC, REST, Spring Boot, PostgreSQL, Redis, DynamoDB, Snowflake</p>
+      <p><b>Infrastructure</b>Kubernetes, Docker, AWS, Azure, Prometheus, GitHub Actions</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Email me at <a href="mailto:rpascual789@gmail.com">rpascual789@gmail.com</a></span>
+    <span>Updated November 2026</span>
+  </footer>
+</div>
+
+<div class="preview" id="preview" aria-hidden="true"></div>
+
+<script>
+(() => {
+  const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const preview = document.getElementById("preview");
+  const rows = [...document.querySelectorAll("#list .row")];
+
+  let target = { x: 0, y: 0 }, pos = { x: 0, y: 0 }, tilt = 0;
+  let active = null, frame = null;
+
+  function destination() {
+    const w = preview.offsetWidth, h = preview.offsetHeight;
+    const gap = 26, pad = 16;
+    // Sit below and to the right of the cursor so the hovered name stays visible.
+    let x = target.x + gap;
+    if (x + w > innerWidth - pad) x = target.x - gap - w;
+    let y = target.y + gap;
+    if (y + h > innerHeight - pad) y = target.y - gap - h;
+    y = Math.max(pad, Math.min(y, innerHeight - h - pad));
+    return { x, y };
+  }
+
+  function tick() {
+    const d = destination();
+    if (reduceMotion.matches) { pos = d; tilt = 0; }
+    else {
+      const dx = d.x - pos.x;
+      pos.x += dx * 0.2;
+      pos.y += (d.y - pos.y) * 0.2;
+      tilt += (Math.max(-6, Math.min(6, dx * 0.05)) - tilt) * 0.2;
+    }
+    preview.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0) rotate(${tilt.toFixed(2)}deg)`;
+    frame = active ? requestAnimationFrame(tick) : null;
+  }
+
+  function show(row, x, y) {
+    if (row.open) return hide();
+    if (active !== row) {
+      preview.replaceChildren(row.querySelector(".art").cloneNode(true));
+      preview.querySelectorAll("img").forEach(img => img.removeAttribute("loading"));
+    }
+    target = { x, y };
+    if (!active) { pos = destination(); tilt = 0; }
+    active = row;
+    preview.classList.add("on");
+    if (!frame) frame = requestAnimationFrame(tick);
+  }
+
+  function hide() {
+    active = null;
+    preview.classList.remove("on");
+  }
+
+  rows.forEach(row => {
+    const summary = row.querySelector("summary");
+    summary.addEventListener("mouseenter", e => { if (finePointer.matches) show(row, e.clientX, e.clientY); });
+    summary.addEventListener("mousemove", e => {
+      if (!finePointer.matches) return;
+      if (active === row) target = { x: e.clientX, y: e.clientY };
+      else show(row, e.clientX, e.clientY);
+    });
+    summary.addEventListener("mouseleave", hide);
+    summary.addEventListener("focus", () => {
+      if (!finePointer.matches || !summary.matches(":focus-visible")) return;
+      const r = row.querySelector(".name").getBoundingClientRect();
+      show(row, Math.min(r.left + r.width * 0.55, innerWidth * 0.55), r.top + r.height / 2);
+    });
+    summary.addEventListener("blur", hide);
+    row.addEventListener("toggle", () => { if (row.open) hide(); });
+  });
+
+  addEventListener("scroll", () => { if (active) hide(); }, { passive: true });
+
+  // Warm the GIF so the first hover isn't blank.
+  const warm = () => { const i = new Image(); i.src = "hopper-autoscale.gif"; };
+  if ("requestIdleCallback" in window) requestIdleCallback(warm); else setTimeout(warm, 1500);
+})();
+</script>
+</body>
+</html>
